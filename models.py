@@ -9,6 +9,25 @@ DEFAULT_URL = "https://tinyurl.com/demo-cupcake"
 """Models for Cupcake app."""
 
 
+class Ingredient(db.Model):
+    """Model for Ingredients"""
+
+    __tablename__ = "ingredients"
+
+    def __repr__(self):
+        return f"""{self.ingredient_name}"""
+
+    id = db.Column(db.Integer, primary_key=True)
+    ingredient_name = db.Column(db.String(20), nullable=False, unique=True)
+    cupcakes = db.relationship("Cupcake", secondary="recipes", backref="ingredients")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "ingredient_name": self.ingredient_name,
+        }
+
+
 class Cupcake(db.Model):
     """Model for Cupcakes"""
 
@@ -27,31 +46,16 @@ class Cupcake(db.Model):
     image = db.Column(db.String, nullable=False, default=DEFAULT_URL)
 
     def to_dict(self):
+        ingredients_list = [
+            ingredient.ingredient_name for ingredient in self.ingredients
+        ]
         return {
             "id": self.id,
             "flavor": self.flavor,
             "size": self.size,
             "rating": self.rating,
             "image": self.image,
-        }
-
-
-class Ingredient(db.Model):
-    """Model for Ingredients"""
-
-    __tablename__ = "ingredients"
-
-    def __repr__(self):
-        return f"""{self.ingredient_name}"""
-
-    id = db.Column(db.Integer, primary_key=True)
-    ingredient_name = db.Column(db.String(20), nullable=False, unique=True)
-    cupcakes = db.relationship("Cupcake", secondary="recipes", backref="ingredients")
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "ingredient_name": self.ingredient_name,
+            "ingredients": ingredients_list,
         }
 
 

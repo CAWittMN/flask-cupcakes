@@ -24,7 +24,7 @@ def root():
     return render_template("index.html")
 
 
-@app.route("/api/cupcakes")
+@app.route("/api/cupcakes/", methods=["GET"])
 def get_all_cupcakes():
     """get all cupcakes"""
 
@@ -32,7 +32,7 @@ def get_all_cupcakes():
     return jsonify(cupcakes=cupcakes)
 
 
-@app.route("/api/cupcakes/<flavor>")
+@app.route("/api/cupcakes/flavor/<flavor>")
 def get_cupcakes_by_flavor(flavor):
     """get cupcakes by flavor"""
     cupcakes = [
