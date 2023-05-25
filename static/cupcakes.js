@@ -138,10 +138,14 @@ class CupcakeModel {
   }
 
   async getCakesByFlavor(flavor) {
-    const cakes = await axios.get(`/api/cupcakes/${flavor}`);
+    const cakes = await axios.get(`/api/cupcakes/flavor/${flavor}`);
     return cakes.data.cupcakes;
   }
-  async getCakeById(id) {}
+  async getCakeById(id) {
+    const cake = await axios.get(`/api/cupcakes/${id}`);
+    console.log(cake.data.cupcake);
+    return cake.data.cupcake;
+  }
 }
 
 class IngredientsModel {
