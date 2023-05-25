@@ -1,0 +1,29 @@
+.navbar-brand {
+  font-family: "Lobster", cursive;
+  font-size: 4em;
+}
+
+.offcanvas {
+  background: rgb(127, 125, 166);
+  background: linear-gradient(
+    148deg,
+    rgba(127, 125, 166, 1) 0%,
+    rgba(226, 127, 210, 1) 45%,
+    rgba(215, 148, 197, 1) 54%,
+    rgba(255, 254, 144, 1) 100%
+  );
+}
+
+.background-gradient {
+  background: rgb(238, 174, 202);
+  background: radial-gradient(
+    circle,
+    rgba(238, 174, 202, 1) 20%,
+    rgba(148, 187, 233, 1) 100%
+  );
+}
+
+.card-img-top:hover {
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
