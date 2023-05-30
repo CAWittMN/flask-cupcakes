@@ -34,10 +34,14 @@
 }
 
 .main-card-image {
-  max-height: 30rem;
+  max-height: 60vh;
+  max-width: 40rem;
   object-fit: cover;
 }
 
 #edit-btn {
   float: right;
+}
+
+.main-card {
 }

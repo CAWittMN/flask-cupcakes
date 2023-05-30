@@ -54,7 +54,7 @@
             {% include '_form.html' %}
             <div class="row m-1">
               <button
-                form="cupcake-form"
+                form="create-cupcake-form"
                 class="btn w-50 mb-3 bottom-0 position-relative btn-success"
                 type="submit"
               >
@@ -100,7 +100,7 @@
             ></button>
           </div>
           <div class="offcanvas-body">
-            <form class="d-flex mt-3" role="search">
+            <form class="d-flex mt-3" id="flavor-search" role="search">
               <input
                 class="form-control me-2"
                 type="search"
@@ -183,6 +183,7 @@
                         Close
                       </button>
                       <button
+                        form="edit-cupcake-form"
                         type="button"
                         id="edit-save-btn"
                         class="btn btn-primary"
@@ -201,7 +202,11 @@
                 </div>
               </div>
             </div>
-            <div class="col-12 text-center" id="cake-page"></div>
+            <div class="row">
+              <div class="col-1"></div>
+              <div class="col-10 text-center" id="cake-page"></div>
+              <div class="col-1"></div>
+            </div>
           </div>
           <div class="col-2"></div>
         </div>

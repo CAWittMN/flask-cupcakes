@@ -120,9 +120,9 @@ class CupcakeView {
   }
 
   makeCakeCard(cake) {
-    const $card = $("<div>").attr({ class: "card" });
+    const $card = $("<div>").attr({ class: "card main-card" });
     const $cardImg = $("<img>").attr({
-      class: "card-img-top main-card-image",
+      class: "card-img-top main-card-image img-responsive rounded mx-auto",
       src: cake.image,
     });
     const $cardBody = $("<div>").attr({ class: "card-body" });
@@ -180,6 +180,7 @@ class CupcakeModel {
     this.$editSize = $("#edit-size");
     this.$editDescription = $("#edit-description");
     this.$cakeList = $("#cupcake-list");
+    this.$flavorSearch = $("#flavor-search");
   }
 
   populateEditForm(cake) {
@@ -189,6 +190,7 @@ class CupcakeModel {
     this.$editForm.find("#edit-description").val(cake.description);
     this.$editForm.find(`#edit-rating-${cake.rating}`).prop("checked", true);
   }
+
   clearForm() {
     this.$form.trigger("reset");
     this.$editForm.trigger("reset");
@@ -196,12 +198,16 @@ class CupcakeModel {
 
   getCakeValues(target) {
     return {
-      flavor: this.formatCakeFlavor(this.$form.find(`#${target}-flavor`).val()),
-      image: this.$form.find(`${target}-#image`).val(),
-      size: this.$form.find(`${target}-#size`).val(),
+      flavor: this.formatCakeFlavor(
+        $(`#${target}-cupcake-form`).find(`#${target}-flavor`).val()
+      ),
+      image: $(`#${target}-cupcake-form`).find(`#${target}-image`).val(),
+      size: $(`#${target}-cupcake-form`).find(`#${target}-size`).val(),
       rating: Number($(`input[name="${target}-rating"]:checked`).val()),
       ingredients: this.makeIngredientList(target),
-      description: this.$form.find(`#${target}-description`).val(),
+      description: $(`#${target}-cupcake-form`)
+        .find(`#${target}-description`)
+        .val(),
     };
   }
 
@@ -225,6 +231,18 @@ class CupcakeModel {
     });
     cake.image = newCakeResponse.data.cupcake.image;
     cake.id = newCakeResponse.data.cupcake.id;
+  }
+  async updateCake(cake) {
+    const updatedCakeResponse = await axios.patch(`/api/cupcakes/${cake.id}`, {
+      flavor: cake.flavor,
+      image: cake.image,
+      size: cake.size,
+      rating: cake.rating,
+      description: cake.description,
+      ingredients: cake.ingredients,
+    });
+    cake.image = updatedCakeResponse.data.cupcake.image;
+    cake.id = updatedCakeResponse.data.cupcake.id;
   }
 
   makeIngredientList(target) {
@@ -266,8 +284,8 @@ class CupcakeModel {
 class IngredientsModel {
   constructor() {
     this.baseUrl = "/api";
-    this.$form = $("#ingredients-form");
-    this.$input = $("#ingredients-input");
+    this.$form = $("#create-ingredients-form");
+    this.$input = $("#create-ingredients-input");
     this.$editForm = $("#edit-ingredients-form");
     this.$editInput = $("#edit-ingredients-input");
   }
@@ -305,7 +323,8 @@ class IngredientsView {
     }
     return false;
   }
-  clearForm() {
+
+  clearForm(target) {
     $(`#${target}-ingredients-input`).val("");
   }
 
@@ -378,19 +397,69 @@ class Controller {
     this.initIngs("edit");
 
     this.ingModel.$form.on("submit", this.handleIngSubmit.bind(this));
-    this.cupcakeModel.$form.on("submit", this.handleCupcakeSubmit.bind(this));
+    this.ingModel.$editForm.on("submit", this.handleIngSubmit.bind(this));
+    this.cupcakeModel.$form.on(
+      "submit",
+      this.handleCupcakeFormSubmit.bind(this)
+    );
+    this.cupcakeModel.$editForm.on(
+      "submit",
+      this.handleCupcakeFormSubmit.bind(this)
+    );
     this.cupcakeView.$clearFormBtn.click(() => this.handleFormReset());
     this.cupcakeModel.$search.on("keyup", this.handleSearchKeyup.bind(this));
     this.cupcakeView.$cakeList.on("click", this.handleCupcakeClick.bind(this));
     this.cupcakeModel.$saveChangesBtn.on(
       "click",
-      this.handleSaveChanges.bind(this)
+      this.handleCupcakeFormSubmit.bind(this)
+    );
+    this.cupcakeModel.$flavorSearch.on(
+      "submit",
+      this.handleFlavorSubmit.bind(this)
     );
   }
-  handleSaveChanges(event) {}
+  async handleSaveChanges(event) {
+    const source = "edit";
+    await this.handleCupcakeSubmit(source);
+  }
 
+  async handleCupcakeFormSubmit(event) {
+    event.preventDefault();
+    let source;
+    if (event.target.id == "create-cupcake-form") {
+      source = "create";
+    } else {
+      source = "edit";
+    }
+
+    await this.handleCupcakeSubmit(source);
+  }
+
+  async handleFlavorSubmit(event) {
+    event.preventDefault();
+    const input = this.cupcakeModel.$search.val().toLowerCase();
+    console.log(input);
+    this.handleSearch(input);
+  }
+
+  async handleSearch(value) {
+    if (value == "") {
+      this.initList();
+    } else {
+      this.cupcakeView.hideNoCakesMessage();
+      if (!this.cupcakeView.$spinner.is(":visible")) {
+        this.cupcakeView.toggleSearchSpinner();
+      }
+      const cakes = await this.cupcakeModel.getCakesByFlavor(value);
+      this.cupcakeView.toggleSearchSpinner();
+      if (cakes.length == 0) {
+        this.cupcakeView.showNoCakesMessage();
+      }
+      this.cupcakeView.renderAllCakes(cakes);
+    }
+  }
   handleFormReset() {
-    this.cupcakeView.clearForm();
+    this.cupcakeModel.clearForm();
     this.ingView.resetIngs();
   }
 
@@ -404,32 +473,21 @@ class Controller {
       );
       this.cupcakeView.initCakePage(cake);
       this.cupcakeModel.populateEditForm(cake);
+      for (const ing of cake.ingredients) {
+        this.ingView.toggleIng(ing, "edit");
+      }
       this.cupcakeView.closeList();
     }
   }
 
   async handleSearchKeyup(event) {
-    if (event.target.value == "") {
-      this.initList();
-    } else {
-      this.cupcakeView.hideNoCakesMessage();
-      if (!this.cupcakeView.$spinner.is(":visible")) {
-        this.cupcakeView.toggleSearchSpinner();
-      }
-      const cakes = await this.cupcakeModel.getCakesByFlavor(
-        event.target.value
-      );
-      this.cupcakeView.toggleSearchSpinner();
-      if (cakes.length == 0) {
-        this.cupcakeView.showNoCakesMessage();
-      }
-      this.cupcakeView.renderAllCakes(cakes);
-    }
+    const value = event.target.value.toLowerCase();
+    this.handleSearch(value);
   }
 
-  async handleCupcakeSubmit(event) {
-    event.preventDefault();
-    const cakeValues = this.cupcakeModel.getCakeValues("create");
+  async handleCupcakeSubmit(target) {
+    const cakeValues = this.cupcakeModel.getCakeValues(target);
+    console.log(cakeValues);
     const newCake = new Cupcake(
       cakeValues["flavor"],
       cakeValues["image"],
@@ -438,19 +496,28 @@ class Controller {
       cakeValues["description"],
       cakeValues["ingredients"]
     );
-    await this.cupcakeModel.addCake(newCake);
-    this.cupcakeView.renderCakeInList(newCake);
-    this.handleFormReset();
-    this.cupcakeView.closeForm();
-    this.cupcakeView.animateIcon();
-    this.cupcakeView.popNotification();
+    if (target == "create") {
+      await this.cupcakeModel.addCake(newCake);
+      this.cupcakeView.renderCakeInList(newCake);
+      this.handleFormReset();
+      this.cupcakeView.closeForm();
+      this.cupcakeView.animateIcon();
+      this.cupcakeView.popNotification();
+    } else {
+      await this.cupcakeModel.updateCake(newCake);
+      this.cupcakeView.initCakePage(newCake);
+      this.cupcakeModel.populateEditForm(newCake);
+      for (const ing of newCake.ingredients) {
+        this.ingView.toggleIng(ing, target);
+      }
+    }
   }
 
   async handleIngSubmit(event) {
     event.preventDefault();
     let source;
     let ingredient;
-    if (event.target.form == "create-ingredients-form") {
+    if (event.target.id == "create-ingredients-form") {
       ingredient = this.ingModel.getFormattedIngredient(
         this.ingModel.$input.val()
       );
