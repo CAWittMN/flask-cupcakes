@@ -41,9 +41,10 @@ class Cupcake(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     flavor = db.Column(db.String(20), nullable=False)
-    size = db.Column(db.String(10), nullable=False)
+    size = db.Column(db.String, nullable=False)
     rating = db.Column(db.Float, nullable=False, default=0)
     image = db.Column(db.String, nullable=False, default=DEFAULT_URL)
+    description = db.Column(db.String, nullable=False)
 
     def to_dict(self):
         ingredients_list = [
@@ -55,6 +56,7 @@ class Cupcake(db.Model):
             "size": self.size,
             "rating": self.rating,
             "image": self.image,
+            "description": self.description,
             "ingredients": ingredients_list,
         }
 

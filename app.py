@@ -28,7 +28,10 @@ def root():
 def get_all_cupcakes():
     """get all cupcakes"""
 
-    cupcakes = [cupcake.to_dict() for cupcake in Cupcake.query.all()]
+    cupcakes = [
+        cupcake.to_dict()
+        for cupcake in Cupcake.query.order_by(Cupcake.rating.desc()).all()
+    ]
     return jsonify(cupcakes=cupcakes)
 
 
@@ -37,7 +40,9 @@ def get_cupcakes_by_flavor(flavor):
     """get cupcakes by flavor"""
     cupcakes = [
         cupcake.to_dict()
-        for cupcake in Cupcake.query.filter(Cupcake.flavor.ilike(f"%{flavor}%")).all()
+        for cupcake in Cupcake.query.filter(Cupcake.flavor.ilike(f"%{flavor}%"))
+        .order_by(Cupcake.rating.desc())
+        .all()
     ]
     return jsonify(cupcakes=cupcakes)
 
@@ -55,6 +60,7 @@ def create_cupcake():
         size=data["size"],
         rating=data["rating"],
         image=data["image"] or None,
+        description=data["description"],
         ingredients=ingredients,
     )
     db.session.add(new_cupcake)
