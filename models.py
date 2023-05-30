@@ -41,7 +41,7 @@ class Cupcake(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     flavor = db.Column(db.String(20), nullable=False)
-    size = db.Column(db.String, nullable=False)
+    size = db.Column(db.String, nullable=False, default="regular")
     rating = db.Column(db.Float, nullable=False, default=0)
     image = db.Column(db.String, nullable=False, default=DEFAULT_URL)
     description = db.Column(db.String, nullable=False)

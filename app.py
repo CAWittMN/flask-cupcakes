@@ -1,7 +1,7 @@
 """Flask app for Cupcakes"""
 
 from flask import Flask, jsonify, request, render_template
-from models import Cupcake, Ingredient, db, connect_db
+from models import Cupcake, Ingredient, db, connect_db, DEFAULT_URL
 
 
 app = Flask(__name__)
@@ -76,15 +76,24 @@ def get_cupcake_by_id(id):
     return jsonify(cupcake=cupcake.to_dict())
 
 
-@app.route("/api/cupcakes/<int:id>", methods=["PATCH"])
+@app.route("/api/cupcakes/<int:id>", methods=["POST"])
 def update_cupcake_by_id(id):
     data = request.json
     cupcake = Cupcake.query.get_or_404(id)
+    image = data["image"]
+    if image == "":
+        image == DEFAULT_URL
+    ingredients_list = data["ingredients"]
+    ingredients = Ingredient.query.filter(
+        Ingredient.ingredient_name.in_(ingredients_list)
+    ).all()
 
     cupcake.flavor = data["flavor"]
     cupcake.size = data["size"]
     cupcake.rating = data["rating"]
-    cupcake.image = data["image"]
+    cupcake.image = data["image"] or DEFAULT_URL
+    cupcake.description = data["description"]
+    cupcake.ingredients = ingredients
 
     db.session.add(cupcake)
     db.session.commit()
