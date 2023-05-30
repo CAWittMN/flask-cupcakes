@@ -23,7 +23,21 @@
   );
 }
 
-.card-img-top:hover {
+.list-image {
+  height: 10rem;
+  object-fit: cover;
+}
+
+.list-image:hover {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
   cursor: pointer;
+}
+
+.main-card-image {
+  max-height: 30rem;
+  object-fit: cover;
+}
+
+#edit-btn {
+  float: right;
 }

@@ -20,7 +20,8 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <nav class="navbar fixed-top pt-0">
+    <div class="z-n1 w-100 h-100 position-fixed background-gradient"></div>
+    <nav class="navbar pt-0">
       <div class="container-lg">
         <button
           type="button"
@@ -50,123 +51,11 @@
             ></button>
           </div>
           <div class="offcanvas-body">
-            <div>
-              <button class="btn btn-secondary mb-3" id="clear-form">
-                Clear
-              </button>
-              <form id="cupcake-form">
-                <div class="input-group mb-3">
-                  <span class="input-group-text"
-                    ><i class="fa-solid fa-cake-candles"></i></span
-                  ><input
-                    required
-                    name="flavor"
-                    type="text"
-                    class="form-control"
-                    placeholder="Flavor"
-                    aria-label="Flavor"
-                    aria-describedby="flavor"
-                    id="flavor"
-                  />
-                </div>
-                <div class="input-group mb-3">
-                  <span class="input-group-text"
-                    ><i class="fa-regular fa-image"></i></span
-                  ><input
-                    name="photo_url"
-                    type="text"
-                    class="form-control"
-                    placeholder="Photo URL"
-                    aria-label="Photo URL"
-                    aria-describedby="image"
-                    id="image"
-                  />
-                </div>
-                <div class="input-group mb-3">
-                  <label class="input-group-text" for="size"
-                    ><i class="fa-solid fa-expand"></i> </label
-                  ><select class="form-select" name="size" id="size">
-                    <option selected value="regular">Size</option>
-                    <option value="big">Big</option>
-                    <option value="regular">Regular</option>
-                    <option value="mini">Mini</option>
-                  </select>
-                </div>
-                <div class="input-group mb-3">
-                  <span class="input-group-text" id="basic-addon4"
-                    ><i class="fa-regular fa-star"></i></span
-                  ><input
-                    value="0"
-                    type="radio"
-                    name="rating"
-                    class="btn-check"
-                    id="rating-0"
-                    checked
-                  />
-                  <label for="rating-0" class="btn btn-outline-light">0</label
-                  ><input
-                    value="1"
-                    type="radio"
-                    name="rating"
-                    class="btn-check"
-                    id="rating-1"
-                  />
-                  <label for="rating-1" class="btn btn-outline-light">1</label
-                  ><input
-                    value="2"
-                    type="radio"
-                    name="rating"
-                    class="btn-check"
-                    id="rating-2"
-                  />
-                  <label for="rating-2" class="btn btn-outline-light">2</label
-                  ><input
-                    value="3"
-                    type="radio"
-                    name="rating"
-                    class="btn-check"
-                    id="rating-3"
-                  />
-                  <label for="rating-3" class="btn btn-outline-light">3</label
-                  ><input
-                    value="4"
-                    type="radio"
-                    name="rating"
-                    class="btn-check"
-                    id="rating-4"
-                  />
-                  <label for="rating-4" class="btn btn-outline-light">4</label
-                  ><input
-                    value="5"
-                    type="radio"
-                    name="rating"
-                    class="btn-check"
-                    id="rating-5"
-                  />
-                  <label for="rating-5" class="btn btn-outline-light">5</label>
-                </div>
-              </form>
-              <form id="ingredients-form">
-                <div class="input-group mb-3">
-                  <span class="input-group-text" id="basic-addon5"
-                    ><i class="fa-solid fa-bowl-rice"></i></span
-                  ><input
-                    name="ingredient"
-                    type="text"
-                    class="form-control"
-                    placeholder="Enter an ingredient"
-                    aria-label="Enter an ingredient"
-                    aria-describedby="basic-addon5"
-                    id="ingredients-input"
-                  />
-                </div>
-              </form>
-            </div>
-            <div class="row row-cols-auto m-1" id="ingredients-list"></div>
+            {% include '_form.html' %}
             <div class="row m-1">
               <button
                 form="cupcake-form"
-                class="btn w-50 mb-3 bottom-0 position-absolute btn-success"
+                class="btn w-50 mb-3 bottom-0 position-relative btn-success"
                 type="submit"
               >
                 Bake it up!
@@ -203,6 +92,7 @@
           <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Cupcakes</h5>
             <button
+              id="cake-list-close"
               type="button"
               class="btn-close"
               data-bs-dismiss="offcanvas"
@@ -226,6 +116,13 @@
               <div class="row" id="cupcake-list"></div>
             </div>
             <div
+              id="no-cupcakes-message"
+              style="display: none"
+              class="text-center fade rounded opacity-50 border-danger text-light mt-3 bg-secondary border p-3 mx-auto"
+            >
+              <h3>No results</h3>
+            </div>
+            <div
               id="spinner"
               class="mt-3 text-center mx-auto"
               style="display: none"
@@ -240,25 +137,74 @@
         </div>
       </div>
     </nav>
-    <div class="w-100 h-100 position-fixed background-gradient"></div>
-    <div class="container-fluid" id="content-spinner">
-      <div id="spinner" class="mt-3 text-center mx-auto" style="display: none">
-        <div class="text-center">
-          <div class="spinner-border text-warning" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      </div>
-    </div>
     <main id="content">
-      <div
-        class="container-xsm position-absolute top-50 start-50 translate-middle"
-      >
-        <img
-          class="mx-auto d-block img-fluid"
-          src="https://www.transparentpng.com/thumb/cupcake/wmxyh5-smallcakes-cupcakery-located-kearney-omaha-nebraska.png"
-          alt="Blue with drinks cupcake clipart transparent background @transparentpng.com"
-        />
+      <div class="container-fluid mt-3 px-4">
+        <div class="row">
+          <div class="col-2"></div>
+          <div class="col-8 text-center">
+            <img
+              id="cupcake-home"
+              class="mx-auto img-fluid"
+              src="https://www.transparentpng.com/thumb/cupcake/wmxyh5-smallcakes-cupcakery-located-kearney-omaha-nebraska.png"
+              alt="Blue with drinks cupcake clipart transparent background @transparentpng.com"
+            />
+            <div class="row text-center">
+              <div
+                class="modal fade"
+                id="edit-modal"
+                data-bs-backdrop="static"
+                data-bs-keyboard="false"
+                tabindex="-1"
+                aria-labelledby="staticBackdropLabel"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                        Edit Cupcake info:
+                      </h1>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      {% include 'edit_rating.html' %}
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Close
+                      </button>
+                      <button
+                        type="button"
+                        id="edit-save-btn"
+                        class="btn btn-primary"
+                      >
+                        Save changes
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-danger"
+                        id="delete-btn"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 text-center" id="cake-page"></div>
+          </div>
+          <div class="col-2"></div>
+        </div>
       </div>
     </main>
     <script src="https://unpkg.com/jquery"></script>

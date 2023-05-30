@@ -1,26 +1,49 @@
 class Cupcake {
-  constructor(flavor, image, size, rating, ingredients) {
+  constructor(flavor, image, size, rating, description, ingredients) {
     this.flavor = flavor;
     this.image = image;
     this.size = size;
     this.rating = rating;
+    this.description = description;
     this.ingredients = ingredients;
     this.id;
   }
+
+  getRatingStars() {
+    let starString = "☆☆☆☆☆";
+    let index = 0;
+    for (let i = 0; i < this.rating; i++) {
+      starString = starString.replace(starString[index], "★");
+      index++;
+    }
+    return starString;
+  }
+
+  getIngredientString() {
+    let ingredientString = "";
+    for (let ingredient of this.ingredients) {
+      ingredientString += ingredient.replaceAll("-", " ") + ", ";
+    }
+    return ingredientString.slice(0, -2);
+  }
 }
+
+//-----------Views for cupcakes-----------//
 
 class CupcakeView {
   constructor() {
-    this.$clearFormBtn = $("#clear-form");
-    this.$contentContainer = $("#content");
-    this.$cakeList = $("#cupcake-list");
     this.$formCloseBtn = $("#form-close");
+    this.$cakeList = $("#cupcake-list");
+    this.$cakePage = $("#cake-page");
     this.$cupcakeBtn = $("#cupcake-btn");
     this.$cakeListCloseBtn = $("#cake-list-close");
+    this.$clearFormBtn = $("#clear-form");
     this.$cupcakeIcon = $("#cupcake-icon");
     this.$notification = $("#notification");
     this.$spinner = $("#spinner");
     this.$contentSpinner = $("#content-spinner");
+    this.$mainImage = $("#cupcake-home");
+    this.$noCakesMessage = $("#no-cupcakes-message");
   }
 
   popNotification() {
@@ -45,11 +68,6 @@ class CupcakeView {
     this.$cakeListCloseBtn.click();
   }
 
-  clearForm() {
-    const $form = $("#cupcake-form");
-    $form.trigger("reset");
-  }
-
   renderAllCakes(cakes) {
     this.$cakeList.empty();
     for (const cake of cakes) {
@@ -63,43 +81,127 @@ class CupcakeView {
     });
     const $card = $("<div>").attr({ class: "card h-100" });
     const $cardImg = $("<img>").attr({
-      class: "card-img-top img-thumbnail img-responsive",
+      class: "card-img-top img-thumbnail img-responsive list-image",
       src: cake.image,
       id: cake.id,
     });
     const $cardBody = $("<div>").attr({ class: "card-body" });
-    const $cardTitle = $("<p>").text(cake.flavor);
+    const $cardTitle = $("<h5>")
+      .attr({ class: "card-title text-center" })
+      .text(cake.flavor);
+    const $cardSubtitle = $("<h6>")
+      .attr({ class: "card-subtitle text-center text-body-secondary" })
+      .text(`${cake.rating}★'s`);
     this.$cakeList.append(
-      $col.append($card.append($cardImg, $cardBody.append($cardTitle)))
+      $col.append(
+        $card.append($cardImg, $cardBody.append($cardTitle, $cardSubtitle))
+      )
     );
   }
-  async showSearchSpinner() {
-    this.$cakeList.empty();
-    this.$spinner.show();
-  }
-  async hideSearchSpinner() {
-    this.$spinner.hide();
+
+  toggleSearchSpinner() {
+    this.$spinner.toggle();
   }
 
-  showContentSpinner() {
-    this.$contentSpinner.show();
+  toggleMainImage() {
+    this.$mainImage.fadeToggle();
   }
-  renderCakePage() {}
+
+  toggleContentSpinner() {
+    this.$contentSpinner.toggle();
+  }
+
+  showNoCakesMessage() {
+    this.$noCakesMessage.show();
+  }
+
+  hideNoCakesMessage() {
+    this.$noCakesMessage.hide();
+  }
+
+  makeCakeCard(cake) {
+    const $card = $("<div>").attr({ class: "card" });
+    const $cardImg = $("<img>").attr({
+      class: "card-img-top main-card-image",
+      src: cake.image,
+    });
+    const $cardBody = $("<div>").attr({ class: "card-body" });
+    const $cardTitle = $("<h5>")
+      .attr({ class: "card-title" })
+      .text(cake.flavor);
+    const $cardSubtitle = $("<h6>")
+      .attr({ class: "card-subtitle mb-2 text-body-secondary" })
+      .text(`Rating: ${cake.getRatingStars()}`);
+    const $cardText = $("<p>").text(cake.description);
+    const $cardFooter = $("<div>")
+      .attr({ class: "card-footer pb-1 text-start text-body-secondary" })
+      .text(`Ingredients: ${cake.getIngredientString()}`);
+    const $editBtn = $("<button>")
+      .attr({
+        type: "button",
+        "data-bs-toggle": "modal",
+        "data-bs-target": "#edit-modal",
+        class: "btn btn-link edit-button",
+        data: cake.id,
+        id: "edit-btn",
+      })
+      .text("Edit");
+    const $newCard = $card.append(
+      $cardImg,
+      $cardBody.append($cardTitle, $cardSubtitle, $cardText),
+      $cardFooter.append($editBtn)
+    );
+    return $newCard;
+  }
+
+  initCakePage(cake) {
+    if (this.$cakePage.is(":visible")) {
+      this.$cakePage.fadeToggle();
+    }
+    setTimeout(() => {
+      this.$cakePage.empty();
+      const $cakeCard = this.makeCakeCard(cake);
+      this.$cakePage.append($cakeCard);
+      this.$cakePage.fadeToggle();
+    }, 500);
+  }
 }
+
+//-----------Model for cupcakes-----------//
 
 class CupcakeModel {
   constructor() {
-    this.$form = $("#cupcake-form");
+    this.$form = $("#create-cupcake-form");
     this.$search = $("#search-input");
+    this.$editForm = $("#edit-cupcake-form");
+    this.$saveChangesBtn = $("#edit-save-btn");
+    this.$editFlavor = $("#edit-flavor");
+    this.$editImage = $("#edit-image");
+    this.$editSize = $("#edit-size");
+    this.$editDescription = $("#edit-description");
+    this.$cakeList = $("#cupcake-list");
   }
 
-  getCakeValues() {
+  populateEditForm(cake) {
+    this.$editForm.find("#edit-flavor").val(cake.flavor);
+    this.$editForm.find("#edit-image").val(cake.image);
+    this.$editForm.find("#edit-size").val(cake.size);
+    this.$editForm.find("#edit-description").val(cake.description);
+    this.$editForm.find(`#edit-rating-${cake.rating}`).prop("checked", true);
+  }
+  clearForm() {
+    this.$form.trigger("reset");
+    this.$editForm.trigger("reset");
+  }
+
+  getCakeValues(target) {
     return {
-      flavor: this.formatCakeFlavor(this.$form.find("#flavor").val()),
-      image: this.$form.find("#image").val(),
-      size: this.$form.find("#size").val(),
-      rating: Number($('input[name="rating"]:checked').val()),
-      ingredients: this.makeIngredientList(),
+      flavor: this.formatCakeFlavor(this.$form.find(`#${target}-flavor`).val()),
+      image: this.$form.find(`${target}-#image`).val(),
+      size: this.$form.find(`${target}-#size`).val(),
+      rating: Number($(`input[name="${target}-rating"]:checked`).val()),
+      ingredients: this.makeIngredientList(target),
+      description: this.$form.find(`#${target}-description`).val(),
     };
   }
 
@@ -118,15 +220,16 @@ class CupcakeModel {
       image: cake.image,
       size: cake.size,
       rating: cake.rating,
+      description: cake.description,
       ingredients: cake.ingredients,
     });
     cake.image = newCakeResponse.data.cupcake.image;
     cake.id = newCakeResponse.data.cupcake.id;
   }
 
-  makeIngredientList() {
+  makeIngredientList(target) {
     let ingredients = [];
-    $("#ingredients-list :checked").each(function () {
+    $(`#${target}-ingredients-list :checked`).each(function () {
       ingredients.push($(this).val());
     });
     return ingredients;
@@ -141,22 +244,36 @@ class CupcakeModel {
     const cakes = await axios.get(`/api/cupcakes/flavor/${flavor}`);
     return cakes.data.cupcakes;
   }
+
   async getCakeById(id) {
-    const cake = await axios.get(`/api/cupcakes/${id}`);
-    console.log(cake.data.cupcake);
-    return cake.data.cupcake;
+    const cakeResponse = await axios.get(`/api/cupcakes/${id}`);
+    const cakeData = cakeResponse.data.cupcake;
+    const cake = new Cupcake(
+      cakeData.flavor,
+      cakeData.image,
+      cakeData.size,
+      cakeData.rating,
+      cakeData.description,
+      cakeData.ingredients
+    );
+    cake.id = cakeData.id;
+    return cake;
   }
 }
+
+//-----------Model for ingredients-----------//
 
 class IngredientsModel {
   constructor() {
     this.baseUrl = "/api";
     this.$form = $("#ingredients-form");
     this.$input = $("#ingredients-input");
+    this.$editForm = $("#edit-ingredients-form");
+    this.$editInput = $("#edit-ingredients-input");
   }
 
-  getFormattedIngredient() {
-    return this.$input.val().toLowerCase().split(" ").join("-");
+  getFormattedIngredient(ingInput) {
+    return ingInput.toLowerCase().split(" ").join("-");
   }
 
   async getIngs() {
@@ -171,29 +288,35 @@ class IngredientsModel {
   }
 }
 
+//-----------Views for ingredients-----------//
+
 class IngredientsView {
   constructor() {
-    this.$ingsList = $("#ingredients-list");
+    this.$ingsList = $("#create-ingredients-list");
+    this.$editIngsList = $("#edit-ingredients-list");
   }
 
   checkExists(ingredient) {
-    if ($(`#ing_${ingredient}`).length) {
+    if (
+      $(`#create-ing_${ingredient}`).length ||
+      $(`#edit-ing_${ingredient}`).length
+    ) {
       return true;
     }
     return false;
   }
   clearForm() {
-    $("#ingredients-input").val("");
+    $(`#${target}-ingredients-input`).val("");
   }
 
   resetIngs() {
-    $("#ingredients-list :checked").each(function () {
+    $(`#create-ingredients-list :checked`).each(function () {
       $(this).prop("checked", false);
     });
   }
 
-  toggleIng(ingredient) {
-    const $ing = $(`#ing_${ingredient}`);
+  toggleIng(ingredient, target) {
+    const $ing = $(`#${target}-ing_${ingredient}`);
     if ($ing.prop("checked") == true) {
       $ing.prop("checked", false);
     } else {
@@ -201,37 +324,47 @@ class IngredientsView {
     }
   }
 
-  renderAllIngs(ingredients) {
-    this.$ingsList.empty();
+  renderAllIngs(ingredients, target) {
+    if (target == "create") {
+      this.$ingsList.empty();
+    } else {
+      this.$editIngsList.empty();
+    }
     for (const ingredient of ingredients) {
-      this.renderIng(ingredient.ingredient_name);
-      this.toggleIng(ingredient.ingredient_name);
+      this.renderIng(ingredient.ingredient_name, target);
+      this.toggleIng(ingredient.ingredient_name, target);
     }
   }
 
-  renderIng(ingredient) {
+  renderIng(ingredient, target) {
     const $newCol = $("<div>").attr({ class: "col mb-1 py-o pe-1 ps-0" });
     const $newIngBtn = $("<input>").attr({
       form: "cupcake-form",
       value: ingredient,
       type: "checkbox",
       class: "btn-check",
-      id: `ing_${ingredient}`,
+      id: `${target}-ing_${ingredient}`,
       autocomplete: "off",
       name: "ingredients",
       checked: true,
     });
     const $newIngLbl = $("<label>")
       .attr({
-        for: `ing_${ingredient}`,
+        for: `${target}-ing_${ingredient}`,
         class:
           "btn pt-0 pb-0 pr-1 pl-1 btn-sm rounded-pill btn-outline-primary",
       })
       .text(`${ingredient}`);
     $newCol.append($newIngBtn, $newIngLbl);
-    this.$ingsList.append($newCol);
+    if (target == "create") {
+      this.$ingsList.append($newCol);
+    } else {
+      this.$editIngsList.append($newCol);
+    }
   }
 }
+
+//-----------Controller-----------//
 
 class Controller {
   constructor(cupcakeView, cupcakeModel, ingModel, ingView) {
@@ -240,53 +373,69 @@ class Controller {
     this.ingModel = ingModel;
     this.ingView = ingView;
 
-    this.initPage();
+    this.initList();
+    this.initIngs("create");
+    this.initIngs("edit");
 
     this.ingModel.$form.on("submit", this.handleIngSubmit.bind(this));
     this.cupcakeModel.$form.on("submit", this.handleCupcakeSubmit.bind(this));
     this.cupcakeView.$clearFormBtn.click(() => this.handleFormReset());
     this.cupcakeModel.$search.on("keyup", this.handleSearchKeyup.bind(this));
     this.cupcakeView.$cakeList.on("click", this.handleCupcakeClick.bind(this));
+    this.cupcakeModel.$saveChangesBtn.on(
+      "click",
+      this.handleSaveChanges.bind(this)
+    );
   }
+  handleSaveChanges(event) {}
 
   handleFormReset() {
     this.cupcakeView.clearForm();
     this.ingView.resetIngs();
   }
+
   async handleCupcakeClick(event) {
     if ($(event.target).hasClass("img-thumbnail")) {
-      this.cupcakeView.$contentContainer.empty();
-      this.cupcakeView.showContentSpinner();
+      if (this.cupcakeView.$mainImage.is(":visible")) {
+        this.cupcakeView.toggleMainImage();
+      }
       const cake = await this.cupcakeModel.getCakeById(
         $(event.target).attr("id")
       );
-      this.cupcakeView.hideContentSpinner();
-      this.cupcakeView.renderCakePage(cake);
-      this.cupcakeView.$listCloseBtn.click(() => this.cupcakeView.closeForm());
+      this.cupcakeView.initCakePage(cake);
+      this.cupcakeModel.populateEditForm(cake);
+      this.cupcakeView.closeList();
     }
   }
 
   async handleSearchKeyup(event) {
     if (event.target.value == "") {
-      this.initPage();
+      this.initList();
     } else {
-      this.cupcakeView.showSearchSpinner();
+      this.cupcakeView.hideNoCakesMessage();
+      if (!this.cupcakeView.$spinner.is(":visible")) {
+        this.cupcakeView.toggleSearchSpinner();
+      }
       const cakes = await this.cupcakeModel.getCakesByFlavor(
         event.target.value
       );
-      this.cupcakeView.hideSearchSpinner();
+      this.cupcakeView.toggleSearchSpinner();
+      if (cakes.length == 0) {
+        this.cupcakeView.showNoCakesMessage();
+      }
       this.cupcakeView.renderAllCakes(cakes);
     }
   }
 
   async handleCupcakeSubmit(event) {
     event.preventDefault();
-    const cakeValues = this.cupcakeModel.getCakeValues();
+    const cakeValues = this.cupcakeModel.getCakeValues("create");
     const newCake = new Cupcake(
       cakeValues["flavor"],
       cakeValues["image"],
       cakeValues["size"],
       cakeValues["rating"],
+      cakeValues["description"],
       cakeValues["ingredients"]
     );
     await this.cupcakeModel.addCake(newCake);
@@ -299,27 +448,43 @@ class Controller {
 
   async handleIngSubmit(event) {
     event.preventDefault();
-    const ingredient = this.ingModel.getFormattedIngredient();
+    let source;
+    let ingredient;
+    if (event.target.form == "create-ingredients-form") {
+      ingredient = this.ingModel.getFormattedIngredient(
+        this.ingModel.$input.val()
+      );
+      source = "create";
+    } else {
+      ingredient = this.ingModel.getFormattedIngredient(
+        this.ingModel.$editInput.val()
+      );
+      source = "edit";
+    }
     if (this.ingView.checkExists(ingredient)) {
-      this.ingView.toggleIng(ingredient);
+      this.ingView.toggleIng(ingredient, source);
     } else {
       try {
         await this.ingModel.addIngredient(ingredient);
       } catch (error) {
         console.log(error);
       }
-      this.ingView.renderIng(ingredient);
+      this.ingView.renderIng(ingredient, source);
     }
-    this.ingView.clearForm();
+    this.ingView.clearForm(source);
   }
 
-  async initPage() {
-    this.cupcakeView.clearForm();
-    const ings = await this.ingModel.getIngs();
-    this.ingView.renderAllIngs(ings);
+  async initList() {
+    this.cupcakeView.hideNoCakesMessage();
 
     const cakes = await this.cupcakeModel.getAllCakes();
     this.cupcakeView.renderAllCakes(cakes);
+  }
+
+  async initIngs(target) {
+    this.cupcakeModel.clearForm();
+    const ings = await this.ingModel.getIngs();
+    this.ingView.renderAllIngs(ings, target);
   }
 }
 

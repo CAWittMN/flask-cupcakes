@@ -1,0 +1,118 @@
+<div>
+  <form id="edit-cupcake-form">
+    <div class="input-group mb-3">
+      <span class="input-group-text"
+        ><i class="fa-solid fa-cake-candles"></i></span
+      ><input
+        required
+        name="edit-flavor"
+        type="text"
+        class="form-control"
+        placeholder="Flavor"
+        aria-label="Flavor"
+        aria-describedby="flavor"
+        id="edit-flavor"
+      />
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text"><i class="fa-regular fa-image"></i></span
+      ><input
+        name="edit-photo_url"
+        type="text"
+        class="form-control"
+        placeholder="Photo URL"
+        aria-label="Photo URL"
+        aria-describedby="image"
+        id="edit-image"
+      />
+    </div>
+    <div class="input-group mb-3">
+      <label class="input-group-text" for="edit-size"
+        ><i class="fa-solid fa-expand"></i> </label
+      ><select class="form-select" name="edit-size" id="edit-size">
+        <option selected value="regular">Size</option>
+        <option value="big">Big</option>
+        <option value="regular">Regular</option>
+        <option value="mini">Mini</option>
+      </select>
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text" id="edit-basic-addon4"
+        ><i class="fa-solid fa-star"></i></span
+      ><input
+        value="0"
+        type="radio"
+        name="edit-rating"
+        class="btn-check"
+        id="edit-rating-0"
+      />
+      <label for="edit-rating-0" class="btn btn-outline-secondary">0</label
+      ><input
+        value="1"
+        type="radio"
+        name="edit-rating"
+        class="btn-check"
+        id="edit-rating-1"
+      />
+      <label for="edit-rating-1" class="btn btn-outline-secondary">1</label
+      ><input
+        value="2"
+        type="radio"
+        name="edit-rating"
+        class="btn-check"
+        id="edit-rating-2"
+      />
+      <label for="edit-rating-2" class="btn btn-outline-secondary">2</label
+      ><input
+        value="3"
+        type="radio"
+        name="edit-rating"
+        class="btn-check"
+        id="edit-rating-3"
+      />
+      <label for="edit-rating-3" class="btn btn-outline-secondary">3</label
+      ><input
+        value="4"
+        type="radio"
+        name="edit-rating"
+        class="btn-check"
+        id="edit-rating-4"
+      />
+      <label for="edit-rating-4" class="btn btn-outline-secondary">4</label
+      ><input
+        value="5"
+        type="radio"
+        name="edit-rating"
+        class="btn-check"
+        id="edit-rating-5"
+      />
+      <label for="edit-rating-5" class="btn btn-outline-secondary">5</label>
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text"><i class="fa-solid fa-pen-nib"></i></span>
+      <textarea
+        placeholder="Write a description..."
+        class="form-control"
+        aria-label="With textarea"
+        name="edit-description"
+        id="edit-description"
+      ></textarea>
+    </div>
+  </form>
+  <form id="edit-ingredients-form">
+    <div class="input-group mb-3">
+      <span class="input-group-text" id="basic-addon5"
+        ><i class="fa-solid fa-bowl-rice"></i></span
+      ><input
+        name="edit-ingredient"
+        type="text"
+        class="form-control"
+        placeholder="Enter an ingredient"
+        aria-label="Enter an ingredient"
+        aria-describedby="basic-addon5"
+        id="edit-ingredients-input"
+      />
+    </div>
+  </form>
+</div>
+<div class="row row-cols-auto m-1" id="edit-ingredients-list"></div>
