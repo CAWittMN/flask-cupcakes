@@ -248,7 +248,6 @@ class CupcakeModel {
     return newCakeResponse.data.cupcake;
   }
   async updateCake(cake) {
-    console.log(cake.ingredients + " is updated");
     const updatedCakeResponse = await axios.post(`/api/cupcakes/${cake.id}`, {
       flavor: cake.flavor,
       image: cake.image,
@@ -487,7 +486,6 @@ class Controller {
   async handleFlavorSubmit(event) {
     event.preventDefault();
     const input = this.cupcakeModel.$search.val().toLowerCase();
-    console.log(input);
     await this.handleSearch(input);
   }
 
@@ -537,7 +535,6 @@ class Controller {
 
   async handleCupcakeSubmit(target) {
     const cakeValues = this.cupcakeModel.getCakeValues(target);
-    console.log(cakeValues);
     const newCake = new Cupcake(
       cakeValues["flavor"],
       cakeValues["image"],
@@ -546,7 +543,6 @@ class Controller {
       cakeValues["description"],
       cakeValues["ingredients"]
     );
-    console.log(newCake.ingredients);
     if (target == "create") {
       const cupcake = await this.cupcakeModel.addCake(newCake);
       this.cupcakeView.renderCakeInList(cupcake);
@@ -561,7 +557,6 @@ class Controller {
       this.cupcakeModel.populateEditForm(cupcake);
       this.ingView.resetIngs();
       for (const ing of newCake.ingredients) {
-        console.log(ing);
         this.ingView.toggleIng(ing, target);
       }
       this.cupcakeView.closeForm(target);
