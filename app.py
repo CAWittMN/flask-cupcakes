@@ -1,15 +1,15 @@
 """Flask app for Cupcakes"""
-
+import os
 from flask import Flask, jsonify, request, render_template
 from models import Cupcake, Ingredient, db, connect_db, DEFAULT_URL
 
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "secretcupcakes"
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///cupcakes"
-app.config["SQLALCHEMY_ECHO"] = True
-app.config["SQLALCHEMY_TB_INTERCEPT_REDIRECTS"] = False
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "secretcupcakes")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "SQLALCHEMY_DATABASE_URI", "postgresql:///cupcakes"
+)
 
 
 connect_db(app)
