@@ -6,7 +6,7 @@ from models import Cupcake, Ingredient, db, connect_db, DEFAULT_URL
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "secretcupcakes")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "tempkey")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
     "SQLALCHEMY_DATABASE_URI", "postgresql:///cupcakes"
 )
